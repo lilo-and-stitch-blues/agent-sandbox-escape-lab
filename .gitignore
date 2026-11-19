@@ -5,3 +5,6 @@ __pycache__/
 venv/
 *.gguf
 .DS_Store
+
+# Confidential 0DIN track — never publish
+0din/
