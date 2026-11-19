@@ -12,8 +12,8 @@ against the *real* executors, and ships the tooling behind a conference talk of
 the same name.
 
 > **Headline result:** against `smolagents` `LocalPythonExecutor` (v1.26.0), a one
-> line `str.format` gadget reads host environment secrets and **survives the
-> project's in-review hardening patch**; and authorizing a single ordinary import
+> line `str.format` gadget reads host environment secrets and **would survive the
+> proposed dunder-blocking patch** (PR #2271 — closed unmerged); and authorizing a single ordinary import
 > (`numpy`, `torch`, `joblib`, `pickle`, `yaml`, `subprocess`) yields full command
 > execution. An AST allowlist is not a security boundary.
 
@@ -42,7 +42,7 @@ the same name.
 | Tool | What it does |
 |---|---|
 | `audit_frameworks.py` | Runs fixed, benign host-canary probes through real framework code executors (LangChain `PythonREPLTool` / `PythonAstREPLTool`, `smolagents` `LocalPythonExecutor`, hardened `RestrictedPython`) and scores each **ESCAPED / CONTAINED**. No LLM in the loop — it measures the framework's *default posture*. |
-| `gadget_synth.py` | **Automated `str.format` escape-gadget synthesizer.** Given a sandbox's guard policy (e.g. the dunder-block of the in-review patch), it breadth-first searches the live object graph and **emits + self-validates** working exfiltration payloads. Discovers a *family* of dunder-free routes, not one hand-written trick. |
+| `gadget_synth.py` | **Automated `str.format` escape-gadget synthesizer.** Given a sandbox's guard policy (e.g. the dunder-block proposed in PR #2271, which was closed unmerged), it breadth-first searches the live object graph and **emits + self-validates** working exfiltration payloads. Discovers a *family* of dunder-free routes, not one hand-written trick. |
 | `rce_via_imports.py` | Proves **RCE-on-authorize**: authorize one common import and confirm command execution against the real sandbox (benign marker-file proof). |
 | `demo_rce.py` | A clean, ASCII-safe **3-act live demo** (contained → host-secret read → RCE). `DEMO_PAUSE=1.2` adds stage pacing. |
 | `run.py` / `run_agent.py` | Standalone probe battery against `naive-local` vs a hardened/`misconfigured` Docker sandbox, incl. an optional local-LLM-driven agent loop. |
@@ -61,7 +61,7 @@ the same name.
 | smolagents `LocalPythonExecutor` | AST import/builtin allowlist | 0/5 blocked | **ESCAPED** — host env read |
 | RestrictedPython (hardened) | AST rewrite + `safe_builtins` | 0/5 blocked | CONTAINED — bans `str.format` |
 
-**Synthesized read gadgets** vs the in-review dunder-block patch (`gadget_synth.py --policy nodunder`) — all validated against the real sandbox:
+**Synthesized read gadgets** vs the proposed dunder-block patch (PR #2271, closed unmerged) (`gadget_synth.py --policy nodunder`) — all validated against the real sandbox:
 
 ```
 {0.gi_frame.f_globals[inspect].os.environ[KEY]}
@@ -97,7 +97,7 @@ Python 3.11+. Docker is optional (only for the `docker` sandbox profile).
 # audit whatever frameworks you have installed
 python audit_frameworks.py
 
-# synthesize + validate str.format read gadgets against the patched policy
+# synthesize + validate str.format read gadgets against the proposed dunder-block policy
 python gadget_synth.py --policy nodunder
 
 # prove RCE-on-authorize (writes only a benign marker file)
@@ -111,7 +111,7 @@ Example demo output:
 
 ```
 ACT 1 - the default sandbox looks safe        => CONTAINED (import os / subprocess / __subclasses__)
-ACT 2 - one str.format line                   => HOST SECRET LEAKED (defeats PR #2271)
+ACT 2 - one str.format line                   => HOST SECRET LEAKED (defeats proposed PR #2271)
 ACT 3 - authorize numpy, load a dataset.npy   => ARBITRARY CODE EXECUTION on the host
 ```
 
