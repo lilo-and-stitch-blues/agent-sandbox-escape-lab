@@ -1,5 +1,7 @@
 # Your AI Agent's Python Tool Is a Shell
 
+By **Nivriti S** · [LinkedIn](https://www.linkedin.com/in/nivriti-s) · Talk at [Positive Hack Talks Goa 2026](https://phtalks.pt.community/goa): *"I Gave My Agent numpy and It Gave Me a Shell"*
+
 A small, auditable toolkit for measuring whether an **LLM agent's code-execution
 tool** actually contains the code it runs — and for **automatically synthesizing
 the payloads that escape it** when it doesn't.
@@ -8,8 +10,8 @@ Give an agent a "run Python" tool and you have handed model-written (and often
 attacker-influenced) code a path toward your host. Many frameworks wrap that tool
 in a language-level sandbox — an AST filter, an import allowlist, a dunder block —
 and present it as a safety boundary. This toolkit tests that claim empirically
-against the *real* executors, and ships the tooling behind a conference talk of
-the same name.
+against the *real* executors, and ships the tooling behind the talk
+*"I Gave My Agent numpy and It Gave Me a Shell"* (Positive Hack Talks Goa 2026).
 
 > **Headline result:** against `smolagents` `LocalPythonExecutor` (v1.26.0), a one
 > line `str.format` gadget reads host environment secrets and **would survive the
